@@ -1,8 +1,9 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "Macros.hpp"
 #include <WinSock2.h>
+#include <string>
+#include "Macros.hpp"
 
 namespace NCS
 {
@@ -11,7 +12,7 @@ namespace NCS
 	public:
 		Client();
 		~Client();
-		void SendMessage(char*);
+		void SendMessage(std::string &message);
 
 		//This client socket and our host address.
 		SOCKET mSocket;

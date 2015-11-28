@@ -8,6 +8,9 @@
 
 namespace NCS
 {
+	class PacketListener;
+	class MessageHandler;
+
 	class App
 	{
 	public:
@@ -28,6 +31,10 @@ namespace NCS
 		std::vector<NCS::Client*> mClients;
 
 		RO_DATA_PROPERTY(int, CurrentClientID);
+
+		//Socket Management
+		RO_PTR_PROPERTY(PacketListener, PacketListener);
+		RO_PTR_PROPERTY(MessageHandler, MessageHandler);
 	};
 }
 

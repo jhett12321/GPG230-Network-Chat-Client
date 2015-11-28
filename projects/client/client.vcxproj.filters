@@ -26,9 +26,6 @@
     <ClInclude Include="App.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Packet.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Macros.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -1,7 +1,9 @@
-#include "App.hpp"
 #include <WinSock2.h>
 #include <MSWSock.h>
 #include <iostream>
+#include "App.hpp"
+#include "PacketListener.hpp"
+#include "MessageHandler.hpp"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -15,6 +17,9 @@ namespace NCS
 
 	bool App::Init()
 	{
+		mPacketListener = new PacketListener();
+		mMessageHandler = new MessageHandler();
+
 		WSAData wsaData;
 
 		int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -35,15 +40,6 @@ namespace NCS
 			std::cout << "Error opening socket! Error: " << result << std::endl;
 			WSACleanup();
 			return false;
-		}
-
-		//Create our clients.
-		for (int i = 0; i < maxClients; ++i)
-		{
-			Client* client = new Client();
-			client->SetId(i);
-
-			mClients.push_back(client);
 		}
 
 		//Create our socket address.
@@ -81,30 +77,46 @@ namespace NCS
 
 	void App::Run()
 	{
+		//The client used for connecting users. A new one is created after a connection is established.
+		Client* client = new Client();
+		client->SetId(0);
+
 		for (;;)
 		{
 			//Check to see if there are any new connections
-			if (mCurrentClientID < maxClients)
+			if (mCurrentClientID < maxClients - 1)
 			{
-				sockaddr* sockAddrClient = mClients[mCurrentClientID]->mClientAddr;
+				sockaddr* sockAddrClient = client->mClientAddr;
 				int size = sizeof(*sockAddrClient);
 
-				if (mClients[mCurrentClientID]->mSocket == SOCKET_ERROR)
+				if (client->mSocket == SOCKET_ERROR)
 				{
-					mClients[mCurrentClientID]->mSocket = accept(mServerSocket, sockAddrClient, &size);
+					client->mSocket = accept(mServerSocket, sockAddrClient, &size);
 				}
 
-				else if (mClients[mCurrentClientID]->mSocket == INVALID_SOCKET)
+				else if (client->mSocket == INVALID_SOCKET)
 				{
 					WSACleanup();
 				}
 
 				else
 				{
+					std::cout << "Client " << client->GetId() << " connected!" << std::endl;
+
+					//Push this client into our list.
+					mClients.push_back(client);
+
+					//Increment our client ID.
 					++mCurrentClientID;
-					std::cout << "A client connected! " << std::endl;
+
+					//Create a new client for the next connection.
+					client = new Client();
+					client->SetId(mCurrentClientID);
 				}
 			}
+
+			//Check to see if we have received any new data.
+			mPacketListener->Update();
 
 			char *testMessage = "Welcome to the server!";
 			for (int i = 0; i <= mCurrentClientID; ++i)
