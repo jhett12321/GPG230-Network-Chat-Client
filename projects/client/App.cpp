@@ -1,106 +1,137 @@
-#include "App.hpp"
 #include <WinSock2.h>
-#include <MSWSock.h>
+#include <ws2tcpip.h>
 #include <iostream>
+#include <SFML/Graphics.hpp>
+#include "PacketListener.hpp"
+#include "TextInputManager.hpp"
+#include "PacketSender.hpp"
+#include "App.hpp"
 
 #pragma comment(lib, "Ws2_32.lib")
 
 namespace NCC
 {
-	App& App::Instance()
-	{
-		static App app;
-		return app;
-	}
+    App& App::Instance()
+    {
+        static App app;
+        return app;
+    }
 
-	bool App::Init()
-	{
-		WSAData wsaData;
+    bool App::Init()
+    {
+        mPacketListener = new PacketListener();
+        mPacketSender = new PacketSender();
+        mTextInputManager = new TextInputManager();
 
-		if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-		{
-			std::cout << "WSA Startup failed" << std::endl;
-			WSACleanup();
-			return false;
-		}
+        WSAData wsaData;
 
-		//Create the socket.
-		mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+        {
+            std::cout << "WSA Startup failed" << std::endl;
+            WSACleanup();
+            return false;
+        }
 
-		if (mSocket == SOCKET_ERROR)
-		{
-			std::cout << "Error opening socket" << std::endl;
-			WSACleanup();
-			return false;
-		}
+        //Create the socket.
+        mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-		//Resolve IP address from hostname
-		hostent *host = gethostbyname("localhost");
+        if (mSocket == SOCKET_ERROR)
+        {
+            std::cout << "Error opening socket" << std::endl;
+            WSACleanup();
+            return false;
+        }
 
-		if (host == nullptr)
-		{
-			std::cout << "Failed to resolve hostname." << std::endl;
-			WSACleanup();
-			return false;
-		}
+        //Resolve IP address from hostname
+        char *hostname = "localhost";
+        struct addrinfo hints, *res;
+        struct in_addr addr;
+        int err;
 
-		//Create our socket address.
-		mRecipient = new SOCKADDR_IN();
+        memset(&hints, 0, sizeof(hints));
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_family = AF_INET;
 
-		mRecipient->sin_family = AF_INET;
-		mRecipient->sin_port = htons(1300);
-		mRecipient->sin_addr.s_addr = *((unsigned long*)host->h_addr); //Deprecated?
+        if ((err = getaddrinfo(hostname, NULL, &hints, &res)) != 0)
+        {
+            std::cout << "Failed to resolve hostname." << std::endl;
+            WSACleanup();
+            return false;
+        }
 
-		//Attempt socket connection.
-		if (connect(mSocket, (SOCKADDR*)mRecipient, sizeof(*mRecipient) + 1) != 0)
-		{
-			std::cout << "Failed to establish connection with server." << std::endl;
-			WSACleanup();
-			return false;
-		}
+        addr.S_un = ((struct sockaddr_in *)(res->ai_addr))->sin_addr.S_un;
 
-		//Set socket to use non-blocking mode.
-		u_long iMode = 1;
-		ioctlsocket(mSocket, FIONBIO, &iMode);
+        freeaddrinfo(res);
 
-		return true;
-	}
+        //Create our socket address.
+        mRecipient = new SOCKADDR_IN();
 
-	void App::Run()
-	{
-		for (;;)
-		{
-			//Receive data from the server.
-			char buffer[1000];
+        mRecipient->sin_family = AF_INET;
+        mRecipient->sin_port = htons(1300);
+        mRecipient->sin_addr = addr;
 
-			memset(buffer, 0, 999);
+        //Attempt socket connection.
+        if (connect(mSocket, (SOCKADDR*)mRecipient, sizeof(*mRecipient) + 1) != 0)
+        {
+            std::cout << "Failed to establish connection with server." << std::endl;
+            WSACleanup();
+            return false;
+        }
 
-			//TODO cast these to our packet formats.
-			int receiveDataLength = recv(mSocket, buffer, 1000, 0);
-			std::cout << buffer << std::endl;
+        //Set socket to use non-blocking mode.
+        u_long iMode = 1;
+        ioctlsocket(mSocket, FIONBIO, &iMode);
 
-			int result = WSAGetLastError();
-			if (result != WSAEWOULDBLOCK && result != 0)
-			{
-				std::cout << "Winsock error code: " << result << std::endl;
-				std::cout << "Client disconnected!" << std::endl;
+        //Create the SFML Window
+        mWindow = new sf::RenderWindow(sf::VideoMode(1280, 720), "Network Chat Client");
 
-				// Shutdown our socket
-				shutdown(mSocket, SD_SEND);
+        //Create
+        return true;
+    }
 
-				// Close our socket entirely
-				closesocket(mSocket);
+    void App::Run()
+    {
+        while(mWindow->isOpen())
+        {
+            //Process our Input
+            mTextInputManager->Update();
 
-				break;
-			}
+            //Send our queued packets.
+            mPacketSender->ProcessQueue();
 
-			//TODO Need to change this.
-			Sleep(1000);
-		}
-	}
+            //Receive data from the server.
+            mPacketListener->Update();
 
-	App::~App()
-	{
+            //Update our window
+            WindowUpdate();
 
-	}
+            int result = WSAGetLastError();
+            if (result != WSAEWOULDBLOCK && result != 0)
+            {
+                std::cout << "Winsock error code: " << result << std::endl;
+
+                // Shutdown our socket
+                shutdown(mSocket, SD_SEND);
+
+                // Close our socket entirely
+                closesocket(mSocket);
+
+                break;
+            }
+        }
+    }
+
+    void App::WindowUpdate()
+    {
+        mWindow->clear();
+    }
+
+    App::~App()
+    {
+        DELETE_NULLIFY(mPacketSender);
+        DELETE_NULLIFY(mPacketListener);
+        DELETE_NULLIFY(mTextInputManager);
+
+        DELETE_NULLIFY(mRecipient);
+    }
 }

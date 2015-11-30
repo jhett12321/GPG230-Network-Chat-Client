@@ -5,25 +5,28 @@
 class Packet
 {
 public:
-	enum
-	{
-		MESSAGE = 1,		// (Server/Client) Base Message Packet. Used for general chat and commands.
-		CLIENT_INFO,		// (Client -> Server) Client Announce Packet. Server responds with it's announce packet when successful.
-		SERVER_INFO		// (Server -> Client) Server Announce Packet. Indicates connection was successful.
-	};
+    enum
+    {
+        MESSAGE = 1,		// (Server/Client) Base Message Packet. Used for general chat and commands.
+        CLIENT_INFO,		// (Client -> Server) Client Announce Packet. Server responds with it's announce packet when successful.
+        SERVER_INFO		// (Server -> Client) Server Announce Packet. Indicates connection was successful.
+    };
 
-	int type;
+    int type;
 };
 
 class PacketMessage : public Packet
 {
 public:
-	unsigned short length;
-	char message[1];
+    unsigned short length;
+    char message[255];
 };
 
 class PacketClientInfo : public Packet
 {
+public:
+    unsigned short usernameLength;
+    char username[255];
 };
 
 class PacketServerInfo : public Packet

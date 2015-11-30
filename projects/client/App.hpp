@@ -1,26 +1,44 @@
-#ifndef APP_H
-#define APP_H
+#pragma once
 
-#include "Macros.hpp"
 #include <WinSock2.h>
+#include "Macros.hpp"
+
+namespace sf
+{
+    class RenderWindow;
+}
 
 namespace NCC
 {
-	class App
-	{
-	public:
-		static App& Instance();
-		~App();
+    class PacketListener;
+    class PacketSender;
+    class TextInputManager;
 
-		//Initializer. Returns false if we are unable to bind to a port.
-		bool Init();
+    class App
+    {
+    public:
+        static App& Instance();
+        ~App();
 
-		void Run();
-	protected:
-		//Our Socket and our resolved recipient
-		RO_DATA_PROPERTY(SOCKET, Socket);
-		RO_PTR_PROPERTY(SOCKADDR_IN, Recipient);
-	};
+        //Initializer. Returns false if we are unable to bind to a port.
+        bool Init();
+
+        void Run();
+    protected:
+        void WindowUpdate();
+
+        //Our Socket and our resolved recipient
+        RO_DATA_PROPERTY(SOCKET, Socket);
+        RO_PTR_PROPERTY(SOCKADDR_IN, Recipient);
+
+        //Packet Management
+        RO_PTR_PROPERTY(PacketListener, PacketListener);
+        RO_PTR_PROPERTY(PacketSender, PacketSender);
+
+        //Input Management
+        RO_PTR_PROPERTY(TextInputManager, TextInputManager);
+
+        //The Render Window
+        RO_PTR_PROPERTY(sf::RenderWindow, Window);
+    };
 }
-
-#endif

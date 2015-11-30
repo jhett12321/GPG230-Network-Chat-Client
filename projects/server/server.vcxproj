@@ -151,13 +151,18 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="CommandHandler.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Message.cpp" />
+    <ClCompile Include="MessageHandler.cpp" />
     <ClCompile Include="PacketListener.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
+    <ClInclude Include="Channel.hpp" />
     <ClInclude Include="Client.hpp" />
+    <ClInclude Include="Command.hpp" />
+    <ClInclude Include="CommandHandler.hpp" />
+    <ClInclude Include="Macros.hpp" />
     <ClInclude Include="Message.hpp" />
     <ClInclude Include="MessageHandler.hpp" />
     <ClInclude Include="PacketListener.hpp" />

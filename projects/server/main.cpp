@@ -2,12 +2,12 @@
 
 int main()
 {
-	if (!NCS::App::Instance().Init())
-	{
-		return 1;
-	}
+    if (!NCS::App::Instance().Init())
+    {
+        return 1;
+    }
 
-	NCS::App::Instance().Run();
+    NCS::App::Instance().Run();
 
-	return 0;
+    return 0;
 }

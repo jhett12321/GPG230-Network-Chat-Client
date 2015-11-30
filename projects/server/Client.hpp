@@ -1,5 +1,4 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#pragma once
 
 #include <WinSock2.h>
 #include <string>
@@ -7,22 +6,26 @@
 
 namespace NCS
 {
-	class Client
-	{
-	public:
-		Client();
-		~Client();
-		void SendMessage(std::string &message);
+    class Message;
+    class Channel;
 
-		//This client socket and our host address.
-		SOCKET mSocket;
-		sockaddr* mClientAddr;
-	protected:
-		//std::vector<"string"> chatChannels;
+    class Client
+    {
+    public:
+        Client();
+        ~Client();
+        void SendChatMessage(Message* message);
+        void SendServerInfoToClient();
 
-		//This Client's ID
-		PUBLIC_DATA_PROPERTY(int, Id);
-	};
+        //This client socket and our host address.
+        SOCKET mSocket;
+        sockaddr* mClientAddr;
+    protected:
+        //This Client's ID/Username.
+        PUBLIC_DATA_PROPERTY(int, Id);
+        PUBLIC_DATA_PROPERTY(std::string, Username);
+
+        //This Client's Active Channel.
+        PUBLIC_PTR_PROPERTY(Channel, CurrentChannel);
+    };
 }
-
-#endif

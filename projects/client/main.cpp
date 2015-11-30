@@ -2,12 +2,12 @@
 
 int main()
 {
-	if (!NCC::App::Instance().Init())
-	{
-		return 1;
-	}
+    if (!NCC::App::Instance().Init())
+    {
+        return 1;
+    }
 
-	NCC::App::Instance().Run();
+    NCC::App::Instance().Run();
 
-	return 0;
+    return 0;
 }

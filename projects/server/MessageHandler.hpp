@@ -1,22 +1,20 @@
-#ifndef MESSAGEHANDLER_H
-#define MESSAGEHANDLER_H
+#pragma once
 
 #include <vector>
 
 namespace NCS
 {
-	class Client;
-	class Message;
+    class Client;
+    class Message;
 
-	class MessageHandler
-	{
-	public:
-		void AddMessageToQueue(Message* message);
-		void ProcessQueue();
+    class MessageHandler
+    {
+    public:
+        void AddMessageToQueue(Message* message);
+        void ProcessQueue();
 
-	protected:
-		std::vector<Message*> queuedMessages;
-	};
+    protected:
+        std::vector<Message*> mQueuedMessages;
+        void FormatChatMessage(Message* message);
+    };
 }
-
-#endif

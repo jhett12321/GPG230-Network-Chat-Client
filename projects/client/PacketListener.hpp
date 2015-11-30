@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NCS
+namespace NCC
 {
     class Client;
 
