@@ -19,14 +19,14 @@ class PacketMessage : public Packet
 {
 public:
     unsigned short length;
-    char message[255];
+    char message[1];
 };
 
 class PacketClientInfo : public Packet
 {
 public:
     unsigned short usernameLength;
-    char username[255];
+    char username[1];
 };
 
 class PacketServerInfo : public Packet

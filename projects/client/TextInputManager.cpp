@@ -114,23 +114,19 @@ namespace NCC
     void TextInputManager::SendChatMessage()
     {
         //Create our packet, and set its type.
-        PacketMessage messagePacket = PacketMessage();
-        messagePacket.type = Packet::MESSAGE;
+        PacketMessage* messagePacket = new (&buffer[0]) PacketMessage();
+
+        messagePacket->type = Packet::MESSAGE;
 
         //Set our length value so we know how big it is when getting our string back.
-        messagePacket.length = mInputBuffer.length();
+        messagePacket->length = mInputBuffer.length();
 
-        //Initialize our packet char array to copy our message.
-        //HACK - Possible memory leak.
-        *messagePacket.message = *new char[mInputBuffer.size() + 1];
-
-        //Null Terminator
-        messagePacket.message[mInputBuffer.size()] = 0;
-
-        //Copy the message into our char array.
-        memcpy(messagePacket.message, mInputBuffer.c_str(), mInputBuffer.size());
+        //Copy our message data into the packet.
+        //Add 1 to our size to get the null terminator.
+        strcpy_s(messagePacket->message, mInputBuffer.size() + 1, mInputBuffer.c_str());
 
         //Send our packet to the client.
-        App::Instance().GetPacketSender()->AddPacketData(reinterpret_cast<char*>(&messagePacket), sizeof(messagePacket));
+        //Since we defined our message array as a 1, we only need to add the size of the chat message.
+        App::Instance().GetPacketSender()->AddPacketData(reinterpret_cast<char*>(messagePacket), sizeof(PacketMessage) + mInputBuffer.size());
     }
 }

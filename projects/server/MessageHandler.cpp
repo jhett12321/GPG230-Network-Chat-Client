@@ -1,3 +1,4 @@
+#include <iostream>
 #include "MessageHandler.hpp"
 #include "Message.hpp"
 #include "CommandHandler.hpp"
@@ -22,6 +23,7 @@ namespace NCS
             {
                 Command command = CommandHandler::ParseCommandMessage(message);
 
+                //TODO actually implement this
                 switch(command.mType)
                 {
                     case Command::CHANNEL_JOIN:
@@ -55,6 +57,8 @@ namespace NCS
                 //Format our message.
                 FormatChatMessage(message);
 
+                std::cout << message->GetFormattedMessage() << std::endl;
+
                 for (Client* client : App::Instance().mClients)
                 {
                     if(client->GetCurrentChannel() == currentChannel && client != sender)
@@ -65,7 +69,7 @@ namespace NCS
             }
         }
 
-        //Delete each message object as we have finished processing.
+        //We have finished sending our message queue. Delete them.
         for (int i = 0; i < mQueuedMessages.size(); ++i)
         {
             DELETE_NULLIFY(mQueuedMessages[i]);

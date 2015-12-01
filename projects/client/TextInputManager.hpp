@@ -20,5 +20,8 @@ namespace NCC
         RO_DATA_PROPERTY(bool, AllowInput);
         RO_DATA_PROPERTY(sf::Keyboard::Key, LastKey);
         RO_DATA_PROPERTY(std::string, InputBuffer);
+
+        //Our buffer used for holding packets to send.
+        static char buffer[1000];
     };
 }

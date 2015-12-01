@@ -27,5 +27,8 @@ namespace NCS
 
         //This Client's Active Channel.
         PUBLIC_PTR_PROPERTY(Channel, CurrentChannel);
+
+        //Our buffer used for holding packets to send.
+        static char buffer[1000];
     };
 }
