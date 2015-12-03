@@ -13,6 +13,7 @@ namespace NCS
         //Create a union that contains packet data for all different packet types.
         union
         {
+            //TODO Magic
             char data[1000];
 
             Packet basePacket;
@@ -29,8 +30,10 @@ namespace NCS
             Client* client = App::Instance().mClients[i];
 
             //Receive data from the server.
-            memset(UPacket.data, 0, 999);
+            //TODO Magic
+            memset(UPacket.data, 0, 1000);
 
+            //TODO Magic
             int receiveDataLength = recv(client->mSocket, UPacket.data, 1000, 0);
 
             //TODO Check if there are some errors that would allow the socket to still function.
@@ -71,7 +74,6 @@ namespace NCS
                     default:
                     {
                         std::cout << "Received unknown packet type from client " + client->GetId() << ". Ignoring." << std::endl;
-                        return false;
                     }
                 }
 

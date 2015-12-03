@@ -22,11 +22,12 @@ namespace NCC
 
         //Check our socket to see if we have received any new packets.
         //Receive data from the server.
-        memset(UPacket.data, 0, 999);
+        memset(UPacket.data, 0, 1000);
 
         int receiveDataLength = recv(App::Instance().GetSocket(), UPacket.data, 1000, 0);
 
         //TODO Check if there are some errors that would allow the socket to still function.
+        //TODO Make Functions
         int result = WSAGetLastError();
         if (result != WSAEWOULDBLOCK && result != 0)
         {
@@ -56,7 +57,7 @@ namespace NCC
                 default:
                 {
                     std::cout << "Received unknown packet type from server. Ignoring." << std::endl;
-                    return false;
+                    std::cout << UPacket.basePacket.type << std::endl;
                 }
             }
 

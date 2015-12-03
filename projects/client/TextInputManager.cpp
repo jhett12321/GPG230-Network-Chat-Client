@@ -5,6 +5,12 @@
 #include "App.hpp"
 #include "PacketSender.hpp"
 
+namespace
+{
+    //Our buffer used for holding packets to send.
+    char buffer[1000];
+}
+
 namespace NCC
 {
     TextInputManager::TextInputManager()

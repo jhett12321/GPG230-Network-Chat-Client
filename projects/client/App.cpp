@@ -11,6 +11,11 @@
 
 namespace NCC
 {
+    class AppPimpl
+    {
+        SOCKET ServerSocket;
+    };
+
     App& App::Instance()
     {
         static App app;
@@ -43,6 +48,7 @@ namespace NCC
         }
 
         //Resolve IP address from hostname
+        //TODO make this configurable
         char *hostname = "localhost";
         struct addrinfo hints, *res;
         struct in_addr addr;
@@ -59,7 +65,7 @@ namespace NCC
             return false;
         }
 
-        addr.S_un = ((struct sockaddr_in *)(res->ai_addr))->sin_addr.S_un;
+        addr.S_un = reinterpret_cast<struct sockaddr_in*>(res->ai_addr)->sin_addr.S_un;
 
         freeaddrinfo(res);
 
@@ -71,7 +77,7 @@ namespace NCC
         mRecipient->sin_addr = addr;
 
         //Attempt socket connection.
-        if (connect(mSocket, (SOCKADDR*)mRecipient, sizeof(*mRecipient) + 1) != 0)
+        if (connect(mSocket, reinterpret_cast<SOCKADDR*>(mRecipient), sizeof(*mRecipient) + 1) != 0)
         {
             std::cout << "Failed to establish connection with server." << std::endl;
             WSACleanup();
@@ -100,24 +106,13 @@ namespace NCC
             mPacketSender->ProcessQueue();
 
             //Receive data from the server.
-            mPacketListener->Update();
+            if(!mPacketListener->Update())
+            {
+                mWindow->close();
+            }
 
             //Update our window
             WindowUpdate();
-
-            int result = WSAGetLastError();
-            if (result != WSAEWOULDBLOCK && result != 0)
-            {
-                std::cout << "Winsock error code: " << result << std::endl;
-
-                // Shutdown our socket
-                shutdown(mSocket, SD_SEND);
-
-                // Close our socket entirely
-                closesocket(mSocket);
-
-                break;
-            }
         }
     }
 
@@ -133,5 +128,7 @@ namespace NCC
         DELETE_NULLIFY(mTextInputManager);
 
         DELETE_NULLIFY(mRecipient);
+
+        DELETE_NULLIFY(mWindow);
     }
 }

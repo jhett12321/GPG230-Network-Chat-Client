@@ -27,18 +27,17 @@ namespace NCC
     protected:
         void WindowUpdate();
 
-        //Our Socket and our resolved recipient
         RO_DATA_PROPERTY(SOCKET, Socket);
         RO_PTR_PROPERTY(SOCKADDR_IN, Recipient);
 
-        //Packet Management
+
         RO_PTR_PROPERTY(PacketListener, PacketListener);
         RO_PTR_PROPERTY(PacketSender, PacketSender);
 
-        //Input Management
+
         RO_PTR_PROPERTY(TextInputManager, TextInputManager);
 
-        //The Render Window
+
         RO_PTR_PROPERTY(sf::RenderWindow, Window);
     };
 }

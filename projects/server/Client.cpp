@@ -2,6 +2,11 @@
 #include "Client.hpp"
 #include "Message.hpp"
 
+namespace
+{
+    char buffer[1000];
+}
+
 namespace NCS
 {
     Client::Client()

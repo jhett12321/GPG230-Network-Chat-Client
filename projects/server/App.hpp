@@ -1,8 +1,10 @@
 #pragma once
 
-#include <WinSock2.h>
+#include <basetsd.h>
 #include <vector>
 #include "Macros.hpp"
+
+struct sockaddr_in;
 
 namespace NCS
 {
@@ -10,6 +12,8 @@ namespace NCS
     class MessageHandler;
     class Client;
     class Channel;
+
+    //class AppPImpl;
 
     class App
     {
@@ -23,8 +27,9 @@ namespace NCS
         void Run();
     protected:
         //Our Socket and our host address.
-        RO_DATA_PROPERTY(SOCKET, ServerSocket);
-        RO_PTR_PROPERTY(SOCKADDR_IN, HostAddr);
+        //RO_PTR_PROPERTY(AppPImpl, ServerSocket);
+        RO_DATA_PROPERTY(UINT_PTR, ServerSocket);
+        RO_PTR_PROPERTY(sockaddr_in, HostAddr);
 
         //Clients
         static const int maxClients = 32;
